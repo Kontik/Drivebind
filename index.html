@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drivebind</title>
+    <script src="PubSub.js"></script>
+</head>
+<body>
+    <script>
+        Drivebind.Hub.listen('myev', function(data){console.log(data.a)});
+        Drivebind.Hub.listen('myev2', function(data){console.log(data.a)});
+        Drivebind.Hub.listen('ch1','myev3', function(data){alert(data.a)});
+        Drivebind.Hub.emit('myev', {a: '1 data'});
+        Drivebind.Hub.clear('asd', 'myevasd');
+        Drivebind.Hub.emit('myev', {a: '2 data'});
+        Drivebind.Hub.emit('myev2', {a: '3 data'});
+    </script>
+</body>
+</html>

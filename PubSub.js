@@ -1,35 +1,52 @@
-(Drivebind = function(){
+Drivebind = function(){
 
     var PubSub = {
-        events: {},
         subscribe: function(ev, listener) {
-            this.events[ev] = (this.events[ev] || []).push(listener);
+            (this.events[ev] = this.events[ev] || []).push(listener);
         },
         publish: function(ev, data) {
             if (!this.events[ev]) {return this;}
             
             var calls = this.events[ev];
-            for (var i=0, calls_lenght=calls.length; i < calls_lenght; i++) {
+            for (var i=0, calls_length=calls.length; i < calls_length; i++) {
                 calls[i](data);
             }
-        }
+        },
     }
 
     var Hub = {
         channels: {},
         listen: function(channel_id, ev, callback) {
-            var channel_id = arguments[2] ? channel_id : 'main',
-                channel;
-            if (!this.channels[channel_id]) {
+            var args = Array.prototype.slice.call(arguments),
+                channel_id = args[2] ? args.shift() : 'main',
+                channel = this.channels[channel_id];
+
+            if (!channel) {
                 channel = this.channels[channel_id] = Object.create(PubSub);
             }
-            channel.subscribe(ev, callback);
+            channel.events = channel.events || {};
+            channel.subscribe(args[0], args[1]);
         },
         emit: function(channel_id, ev, data) {
-            var channel_id = arguments[2] ? channel_id : 'main';
+            var args = Array.prototype.slice.call(arguments),
+                channel_id = args[2] ? args.shift() : 'main';
+
             if (!this.channels[channel_id]) {return this;}
-            channels[channel_id].publish(ev, data)
+            this.channels[channel_id].publish(args[0], args[1])
+        },
+        clear: function(channel_id, ev) {
+            if (arguments[1] && this.channels[channel_id]) {
+                delete this.channels[channel_id].events[ev];
+            } else {
+                delete this.channels[channel_id];
+            }
         }
     }
 
-})();
+    var core = {
+        Hub: Hub
+    }
+
+    return core;
+
+}();
