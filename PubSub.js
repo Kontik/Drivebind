@@ -12,6 +12,14 @@ Drivebind = function(){
                 calls[i](data);
             }
         },
+        unsubscribe: function(ev, listener) {
+            if (listener) {
+                var index = this.events[ev].indexOf(listener);
+                if (index != -1) {
+                    this.events[ev].splice(index, 1);
+                }
+            }
+        }
     }
 
     var Hub = {
@@ -32,10 +40,12 @@ Drivebind = function(){
                 channel_id = args[2] ? args.shift() : 'main';
 
             if (!this.channels[channel_id]) {return this;}
-            this.channels[channel_id].publish(args[0], args[1])
+            this.channels[channel_id].publish(args[0], args[1]);
         },
-        clear: function(channel_id, ev) {
-            if (arguments[1] && this.channels[channel_id]) {
+        clear: function(channel_id, ev, listener) {
+            if (arguments[2] && this.channels[channel_id] && this.channels[channel_id].events[ev]) {
+                this.channels[channel_id].unsubscribe(ev, listener);
+            } else if (arguments[1] && this.channels[channel_id]) {
                 delete this.channels[channel_id].events[ev];
             } else {
                 delete this.channels[channel_id];
